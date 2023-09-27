@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MaxOHara", "MaxOHara\MaxOHara.csproj", "{28ABD483-27F2-49FC-95CE-4E4FA6E2AB6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{7DC43DD2-53A1-44DB-A119-714CAD04C227}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Data", "Data\Data.csproj", "{FF993270-05B1-4D29-B57C-3E9F78AE287A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28ABD483-27F2-49FC-95CE-4E4FA6E2AB6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28ABD483-27F2-49FC-95CE-4E4FA6E2AB6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28ABD483-27F2-49FC-95CE-4E4FA6E2AB6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28ABD483-27F2-49FC-95CE-4E4FA6E2AB6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7DC43DD2-53A1-44DB-A119-714CAD04C227}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DC43DD2-53A1-44DB-A119-714CAD04C227}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DC43DD2-53A1-44DB-A119-714CAD04C227}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DC43DD2-53A1-44DB-A119-714CAD04C227}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FF993270-05B1-4D29-B57C-3E9F78AE287A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FF993270-05B1-4D29-B57C-3E9F78AE287A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FF993270-05B1-4D29-B57C-3E9F78AE287A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FF993270-05B1-4D29-B57C-3E9F78AE287A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

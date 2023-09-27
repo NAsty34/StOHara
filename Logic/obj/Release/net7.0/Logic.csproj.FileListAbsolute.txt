@@ -1,0 +1,15 @@
+C:\Projects\MaxOHara\Logic\bin\Release\net7.0\Logic.deps.json
+C:\Projects\MaxOHara\Logic\bin\Release\net7.0\Logic.dll
+C:\Projects\MaxOHara\Logic\bin\Release\net7.0\Logic.pdb
+C:\Projects\MaxOHara\Logic\bin\Release\net7.0\Data.dll
+C:\Projects\MaxOHara\Logic\bin\Release\net7.0\Data.pdb
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.csproj.AssemblyReference.cache
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.AssemblyInfoInputs.cache
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.AssemblyInfo.cs
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.csproj.CoreCompileInputs.cache
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.csproj.CopyComplete
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.dll
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\refint\Logic.dll
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\Logic.pdb
+C:\Projects\MaxOHara\Logic\obj\Release\net7.0\ref\Logic.dll
