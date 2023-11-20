@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Data.Repository.Interface;
 using Logic.Service.Interface;
 
@@ -13,48 +14,46 @@ public class TablesService:ITablesService
         _tablesRepository = tablesRepository;
     }
 
-    /*public async Task<List<TablesEntity>> GetTablesBar()
+    public async Task<List<TableEntity>> GetTablesHall()
     {
-        return await _tablesRepository.GetTablseBar();
-    }*/
-    public async Task<List<TablesEntity>> GetTablesHall()
-    {
-        return await _tablesRepository.GetTablseHall();
+        return await _tablesRepository.GetTableHall();
     }
-    /*public async Task<List<TablesEntity>> GetTablesStreet()
+   
+    public async Task<List<TableEntity>> GetTablesLounge()
     {
-        return await _tablesRepository.GetTablseStreet();
-    }*/
-    public async Task<List<TablesEntity>> GetTablesLaunge()
-    {
-        return await _tablesRepository.GetTablseLaunge();
+        return await _tablesRepository.GetTableLounge();
     }
     
-    public async Task Edit(TablesEntity t)
+    public async Task Edit(TableEntity t)
     {
         await _tablesRepository.Edit(t);
     }
     
-    public TablesEntity GetById(string id)
+    public TableEntity GetById(string id)
     {
         return _tablesRepository.GetById(id);
     }
-    public List<TablesEntity> GetByAll()
+    public IEnumerable<TableEntity> GetByAll()
     {
         return _tablesRepository.GetByAll();
     }
-    public IEnumerable<TablesEntity> GetByIds(IEnumerable<string> id)
+    public List<TableEntity> GetByIds(List<string> id)
     {
         return _tablesRepository.GetByIds(id);
     }
 
-    public async Task<List<TablesEntity>> Create(List<TablesEntity> t)
+    public async Task<List<TableEntity>> Create(List<TableEntity> t)
+    {
+        await _tablesRepository.Create(t);
+        return t;
+    }
+    public async Task<TableEntity> Create(TableEntity t)
     {
         await _tablesRepository.Create(t);
         return t;
     }
 
-    public async Task Edit(List<TablesEntity> t)
+    public async Task Edit(List<TableEntity> t)
     {
         await _tablesRepository.Edit(t);
     }

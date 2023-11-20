@@ -4,5 +4,5 @@ namespace Logic.Service.Interface;
 
 public interface ISendEmailService
 {
-    Task Send(string email, ReservesEntity reserve);
+    Task Send(string email, ReserveEntity reserve);
 }

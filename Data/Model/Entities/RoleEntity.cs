@@ -1,7 +1,7 @@
-namespace Data.Model;
+namespace Data.Model.Entities;
 
 public enum RoleEntity
 {
-    Admin,
+    Администратор,
     Сотрудник
 }

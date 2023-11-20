@@ -16,7 +16,7 @@ public class SliderLendingRepository:LendingRepository<SliderLendingEntity>, ISl
     public async Task Delete(Guid id)
     {
         var entity = GetById(id);
-        DbSet.Remove(entity);
+        if (entity != null) DbSet.Remove(entity);
         await Context.SaveChangesAsync();
     }
     public async Task Create(SliderLendingEntity t)

@@ -54,7 +54,7 @@ public class ClientService:IClientService
             secretKey: _bookingOptions.SecretKey);
     }
 
-    public async Task<PaymentStatus> GetStatusPayment(string id)
+    public PaymentStatus GetStatusPayment(string id)
     {
         var client = CreateClient();
         var payment = client.GetPayment(id);
@@ -62,7 +62,7 @@ public class ClientService:IClientService
         return Status;
     }
     
-    public async Task<PaymentStatus> MyStatusPayment()
+    public PaymentStatus MyStatusPayment()
     {
         return Status;
     }

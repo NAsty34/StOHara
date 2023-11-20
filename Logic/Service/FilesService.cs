@@ -1,4 +1,4 @@
-using Data.Model;
+using Data.Model.Entities;
 using Data.Model.Options;
 using Data.Repository.Interface;
 using Logic.Exceptions;
@@ -28,22 +28,16 @@ public class FilesService : BaseService<FileEntity>, IFilesService
         return $"{_filesOptions.RootPath}/{_filesOptions.PathFolder}/{file.Id}{file.Extension}";
     }
 
-    public List<string> GetUrlFile(IEnumerable<Guid> idFile)
+    public async Task<List<string>> GetUrlFile(List<Guid> idFile)
     {
-        var urls = new List<string>();
-        var files = _fileRepository.GetByIds(idFile);
-        foreach (var oneFile in files)
-        {
-            urls.Add($"{_filesOptions.RootPath}/{_filesOptions.PathFolder}/{oneFile.Id}{oneFile.Extension}");
-        }
+        var files = await _fileRepository.GetByIds(idFile);
 
-        return urls;
+        return files.Select(oneFile => $"{_filesOptions.RootPath}/{_filesOptions.PathFolder}/{oneFile.Id}{oneFile.Extension}").ToList();
     }
 
     public string GetUrlFile(Guid idFile)
     {
         var file = _fileRepository.GetById(idFile);
-        if (file == null) return null;
         return $"{_filesOptions.RootPath}/{_filesOptions.PathFolder}/{idFile}{file.Extension}";
     }
 
@@ -122,9 +116,9 @@ public class FilesService : BaseService<FileEntity>, IFilesService
         await _fileRepository.Delete(fileId);
     }
 
-    public async Task DeleteFileByIds(IEnumerable<Guid> filesId)
+    public async Task DeleteFileByIds(List<Guid> filesId)
     {
-        var listFiles = _fileRepository.GetByIds(filesId);
+        var listFiles = await _fileRepository.GetByIds(filesId);
         foreach (var file in listFiles)
         {
             var path = $"{_filesOptions.PathFolder}/{file.Id}{file.Extension}";

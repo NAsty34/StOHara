@@ -14,7 +14,7 @@ public interface IClientService
     public Task Delete();
     public Client CreateClient();
     public Task<Payment?> CreatePayment(decimal value, Guid id);
-    public Task<PaymentStatus> GetStatusPayment(string id);
-    public Task<PaymentStatus> MyStatusPayment();
+    public PaymentStatus GetStatusPayment(string id);
+    public PaymentStatus MyStatusPayment();
 
 }

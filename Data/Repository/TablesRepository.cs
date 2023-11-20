@@ -1,4 +1,4 @@
-using Data.Model;
+using Data.Model.Entities;
 using Data.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,56 +7,52 @@ namespace Data.Repository;
 public class TablesRepository : ITablesRepository
 {
     protected readonly MaxOHaraContext Context;
-    protected readonly DbSet<TablesEntity> DbSet;
+    protected readonly DbSet<TableEntity> DbSet;
 
     public TablesRepository(MaxOHaraContext context)
     {
         Context = context;
-        DbSet = DbSet = Context.Set<TablesEntity>();
+        DbSet = DbSet = Context.Set<TableEntity>();
     }
-
-    /*public async Task<List<TablesEntity>> GetTablseBar()
-    {
-        return await DbSet.Where(a => a.Hall.Contains("бар")).OrderBy(a=>a.Reserve.EstimatedStartTime).ToListAsync();
-    }*/
-
-    public async Task<List<TablesEntity>> GetTablseHall()
-    {
-        return await DbSet.Where(a => a.Hall.Contains("Стол")).OrderBy(a=>a.Reserve.EstimatedStartTime).ToListAsync();
-    }
-    public async Task<List<TablesEntity>> GetTablseLaunge()
-    {
-        return await DbSet.Where(a => a.Hall== "Лаунж").OrderBy(a=>a.Reserve.EstimatedStartTime).ToListAsync();
-    }
-
-    /*public async Task<List<TablesEntity>> GetTablseStreet()
-    {
-        return await DbSet.Where(a => a.Hall.Contains("Веранда")).OrderBy(a=>a.Reserve.EstimatedStartTime).ToListAsync();
-    }*/
     
-
-    public TablesEntity GetById(string id)
+    public async Task<List<TableEntity>> GetTableHall()
+    {
+        return await DbSet.Where(a => a.Hall.Contains("Зал")).ToListAsync();
+            /*.OrderBy(a=>a.Reserves!.Select(reserveEntity=>reserveEntity.EstimatedStartTime)).ToListAsync();*/
+    }
+    public async Task<List<TableEntity>> GetTableLounge()
+    {
+        return await DbSet.Where(a => a.Hall == "Лаунж").ToListAsync();
+            /*.OrderBy(a=>a.Reserves!.Select(reserveEntity=>reserveEntity.EstimatedStartTime))*/
+    }
+    
+    public TableEntity GetById(string id)
     {
         return DbSet.First(a => a.Id == Guid.Parse(id));
     }
     
-    public List<TablesEntity> GetByAll()
+    public IEnumerable<TableEntity> GetByAll()
     {
         return DbSet.Where(a => true).ToList();
     }
     
-    public IEnumerable<TablesEntity> GetByIds(IEnumerable<string> ids)
+    public List<TableEntity> GetByIds(List<string> ids)
     {
         return DbSet.Where(a => ids.Contains(a.Id.ToString())).ToList();
     }
 
-    public async Task Create(List<TablesEntity> t)
+    public async Task Create(List<TableEntity> t)
     {
         await DbSet.AddRangeAsync(t);
         await Context.SaveChangesAsync();
     }
+    public async Task Create(TableEntity t)
+    {
+        await DbSet.AddAsync(t);
+        await Context.SaveChangesAsync();
+    }
 
-    public async Task Edit(List<TablesEntity> t)
+    public async Task Edit(List<TableEntity> t)
     {
         foreach (var baseEntity in t)
         {
@@ -66,7 +62,7 @@ public class TablesRepository : ITablesRepository
         await Context.SaveChangesAsync();
     }
 
-    public async Task Edit(TablesEntity t)
+    public async Task Edit(TableEntity t)
     {
         Context.Entry(t).State = EntityState.Modified;
         await Context.SaveChangesAsync();
@@ -74,7 +70,7 @@ public class TablesRepository : ITablesRepository
 
     public async Task Delete()
     {
-        var range = DbSet.Where(a => a.Id != null).ToList();
+        var range = DbSet.Where(a => true).ToList();
         DbSet.RemoveRange(range);
         await Context.SaveChangesAsync();
     }

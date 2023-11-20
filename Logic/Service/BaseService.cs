@@ -14,15 +14,15 @@ public class BaseService<T> : IBaseService<T>
     }
     
 
-    public T? GetById(Guid id)
+    public T GetById(Guid id)
     {
         var tId = BaseRepository.GetById(id);
-        return tId;
+        return tId ?? throw new Exception("По вашему запросу найдено 0 элементов");
     }
     
-    public IEnumerable<T?> GetByIds(IEnumerable<Guid> id)
+    public async Task<List<T?>> GetByIds(IEnumerable<Guid> id)
     {
-        return BaseRepository.GetByIds(id);
+        return await BaseRepository.GetByIds(id);
     }
 
     public virtual async Task<PageModel<T?>> GetPage(int? page, int? size)
@@ -30,7 +30,7 @@ public class BaseService<T> : IBaseService<T>
         return await BaseRepository.GetPage(page, size);
     }
 
-    public async Task<List<T?>> Create(List<T?> t)
+    public async Task<List<T>> Create(List<T> t)
     {
         foreach (var oneEntity in t)
         {
@@ -51,9 +51,9 @@ public class BaseService<T> : IBaseService<T>
         await BaseRepository.Edit(t);
         return t;
     }
-    public async Task Edit(IEnumerable<T?> t)
+    public async Task Edit(List<T> t)
     {
-        await BaseRepository.Edit(t);
+        await BaseRepository.Edit(t!);
     }
 
     public async Task Delete(Guid id)

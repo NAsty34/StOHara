@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Data.Model.Lending;
 using Logic.Service.Interface;
 using MaxOHara.Dto;
@@ -49,7 +50,7 @@ public class EditLeadingController : Controller
     }
 
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/lending/upload")]
     [HttpPost]
     public async Task<ResponseDto<FilesDto>> UploadFile([FromForm] IFormFile file)
@@ -62,7 +63,7 @@ public class EditLeadingController : Controller
         return new(filesDto);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/lending")]
     [HttpPost]
     public async Task<EditLendingDto> EditLending([FromBody] EditLendingDto editLendingDto)
@@ -133,7 +134,7 @@ public class EditLeadingController : Controller
         return new(editSliderDto);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/lending/slider")]
     [HttpPost]
     public async Task<SliderLendingDto> CreateSlider([FromBody] SliderLendingDto sliderDto)
@@ -153,7 +154,7 @@ public class EditLeadingController : Controller
         return editSliderDto;
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/lending/slider/{sliderId}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteSlider(Guid sliderId)

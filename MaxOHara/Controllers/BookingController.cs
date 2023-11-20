@@ -1,4 +1,4 @@
-/*using System.Net;
+using System.Net;
 using System.Net.Http.Headers;
 using Data.Model;
 using Data.Model.Entities;
@@ -24,13 +24,13 @@ public class BookingController : Controller
     private readonly ITablesService _tablesService;
     private readonly IIikoService _aikoService;
     private readonly IReservesService _reservesService;
-    private readonly ILogger<ReservesEntity> _logger;
+    private readonly ILogger<ReserveEntity> _logger;
     private readonly ForIIKO _iiko;
     private readonly BookingOptions _bookingOptions;
     private readonly ISendEmailService _sendEmailService;
 
     public BookingController(IClientService clientService, ITablesService tablesService, IIikoService aikoService,
-        IReservesService reservesService, ILogger<ReservesEntity> logger, IOptions<ForIIKO> iiko,
+        IReservesService reservesService, ILogger<ReserveEntity> logger, IOptions<ForIIKO> iiko,
         IOptions<BookingOptions> bookingOptions, ISendEmailService sendEmailService)
     {
         _clientService = clientService;
@@ -47,11 +47,11 @@ public class BookingController : Controller
     [HttpGet]
     public async Task<ResponseDto<IEnumerable<TablesDto>>> GetTables(string hall)
     {
-        List<TablesEntity> tables;
+        List<TableEntity> tables;
 
         if (hall == "launge")
         {
-            tables = await _tablesService.GetTablesLaunge();
+            tables = await _tablesService.GetTablesLounge();
         }
         else
         {
@@ -76,13 +76,13 @@ public class BookingController : Controller
 
     [Route("/api/v1/booking")]
     [HttpPost]
-    public async Task<ResponseDto<string>> CreateBooking([FromBody] CreateReservesDto create)
+    public async Task<ResponseDto<string>> CreateReserve([FromBody] CreateReservesDto create)
     {
         var id = Guid.NewGuid();
         var price = 0;
         var returnUrl = _bookingOptions.ReturnUrl;
         var clientsDb = await _clientService.GetByFio(create.Name, create.Surname, create.Patronymic);
-        ClientEnity client;
+        var client = new ClientEnity();
         if (clientsDb == null)
         {
             client = new ClientEnity
@@ -102,16 +102,25 @@ public class BookingController : Controller
             client = clientsDb;
         }
 
+        if (create.TableIds == null || create.TableIds.Count==0)
+        {
+            throw new Exception("нет столов");
+        }
+        var tables = _tablesService.GetByIds(create.TableIds);
+        if (tables.Count==0)
+        {
+            throw new Exception("нет столов");
+        }
 
-        var reserve = new ReservesEntity
+        var reserve = new ReserveEntity
         {
             Id = id,
             Status = StatusEntity.Progress,
-            TableIds = create.TableIds,
             EstimatedStartTime = create.EstimatedStartTime,
             DurationInMinutes = create.DurationInMinutes,
             GuestsCount = create.GuestsCount,
-            Client = client
+            Client = client,
+            Tables = tables
         };
 
         if (create.EstimatedStartTime < DateTime.Now)
@@ -119,32 +128,36 @@ public class BookingController : Controller
             throw new PastDateException();
         }
 
-        if (create.TableIds != null)
+        var startTime = create.EstimatedStartTime;
+        var endTime = startTime.AddMinutes(create.DurationInMinutes);
+
+        if (create.EstimatedStartTime.Hour < 12 || await _reservesService.CheckHashReservationBetweenTime(startTime, endTime, create.TableIds))
         {
-            var selectTables = _tablesService.GetByIds(create.TableIds);
-
-            if (selectTables.Select(table => table.Reserve?.EstimatedStartTime.TimeOfDay ?? default).Any(a =>
-                {
-                    var reserveMinutes = reserve.EstimatedStartTime.TimeOfDay.Hours * 60 +
-                                         reserve.EstimatedStartTime.TimeOfDay.Minutes;
-                    var aMinutes = a.Hours * 60 + a.Minutes;
-
-                    return Math.Abs(reserveMinutes - aMinutes) < 120;
-                }))
-            {
-                throw new HoursErrorException();
-            }
-        }
-
-        await _reservesService.Create(reserve);
-
-        foreach (var table in reserve.TableIds.Select(tableId => _tablesService.GetById(tableId)))
-        {
-            table.IsReserve = true;
-            table.Reserve = reserve;
-            await _tablesService.Edit(table);
+            throw new HoursErrorException();
         }
         
+        await _reservesService.Create(reserve);
+
+        var idsTablesDb = _tablesService.GetByAll().Select(a => a.Id).ToList();
+        var idsData = create.TableIds.Select(a => a.Split(',')).ToList();
+        var selectTables = new List<TableEntity>();
+        foreach (var arrayIds in idsData)
+        {
+            selectTables.AddRange(from tableId in arrayIds
+                where idsTablesDb.Contains(Guid.Parse(tableId))
+                select _tablesService.GetById(tableId));
+        }
+
+        var reserveTables = new List<ReserveEntity>();
+        foreach (var table in create.TableIds.Select(tableId => _tablesService.GetById(tableId)))
+        {
+            reserveTables.Add(reserve);
+            table.IsReserve = true;
+            table.Reserves = reserveTables;
+            await _tablesService.Edit(table);
+        }
+
+
         if (create.EstimatedStartTime.DayOfWeek is DayOfWeek.Friday or DayOfWeek.Saturday &&
             create.EstimatedStartTime.Hour >= 18)
         {
@@ -160,19 +173,16 @@ public class BookingController : Controller
                 }
             }
 
-            var payment = await _clientService.CreatePayment(price, id);
-            reserve.PaymentId = Guid.Parse(payment.Id);
+            /*var payment = await _clientService.CreatePayment(price, id);
+            reserve.PaymentId = Guid.Parse(payment.Id);*/
             await _reservesService.Edit(reserve);
-            returnUrl = payment.Confirmation.ConfirmationUrl;
+            /*returnUrl = payment.Confirmation.ConfirmationUrl;*/
         }
         else
         {
             reserve.Status = StatusEntity.Success;
-            /*_logger.Log(LogLevel.Information, "========CreateIiko===========");*/
-/*            var reserveModel = new
+            /*var reserveModel = new
             {
-                organizationId = _iiko.organizationId,
-                terminalGroupId = _iiko.terminalGroupId,
                 id = "",
                 externalNumber = "",
                 order = "",
@@ -192,7 +202,7 @@ public class BookingController : Controller
                 comment = client.Message,
                 durationInMinutes = 120,
                 shouldRemind = false,
-                tableIds = reserve.TableIds,
+                tableIds = reserve.Tables,
                 estimatedStartTime = reserve.EstimatedStartTime,
                 transportToFrontTimeout = 0,
                 guests = new
@@ -202,51 +212,44 @@ public class BookingController : Controller
             };
             var bodyReserve = JsonConvert.SerializeObject(reserveModel);
             await Client.PostAsJsonAsync("https://api-ru.iiko.services/api/1/reserve/create",
-                bodyReserve);
+                bodyReserve);*/
         }
 
         reserve.Price = price;
         await _reservesService.Edit(reserve);
 
         await _sendEmailService.Send(create.Email, reserve);
-        
+
         return new ResponseDto<string>(returnUrl);
     }
-    
-    
 
 
     [Route("/api/v1/payment")]
     [HttpPost]
     public async Task Payment([FromBody] object body)
     {
-        _logger.Log(LogLevel.Information, "=====Message====" + body);
-        var client = _clientService.CreateClient();
+        /*var client = _clientService.CreateClient();
         var message = Yandex.Checkout.V3.Client.ParseMessage(Request.Method, Request.ContentType, body.ToString());
         var payment = message.Object;
-        /*_logger.Log(LogLevel.Information, "======PaumentIf===========");*/
-/*        if (message.Event == Event.PaymentWaitingForCapture)
+        if (message.Event == Event.PaymentWaitingForCapture)
         {
             var paymentDb = await _reservesService.GetByPaymentId(payment.Id);
-            var editListTable = new List<TablesEntity>();
-            /*_logger.Log(LogLevel.Information, "=====PaymentDB=====" + paymentDb.Id);*/
-/*            if (paymentDb != null)
+            var editListTable = new List<TableEntity>();
+            if (paymentDb != null)
             {
-                var tables = _tablesService.GetByIds(paymentDb.TableIds).ToList();
+                var tables = _tablesService.GetByIds(paymentDb.Tables.Select(a=>a.Id.ToString()).ToList()).ToList();
                 paymentDb.Status = StatusEntity.Success;
                 await _reservesService.Edit(paymentDb);
-                /*_logger.Log(LogLevel.Information, "======Ok===========");*/
-/*                foreach (var table in tables)
+                foreach (var table in tables)
                 {
                     table.IsReserve = true;
-                    table.Reserve = paymentDb;
+                    /*table.Reserves = paymentDb;#1#
                     editListTable.Add(table);
                 }
 
                 await _tablesService.Edit(editListTable);
                 client.CapturePayment(payment.Id);
-                /*_logger.Log(LogLevel.Information, "======PaymentOkStatus=======" + _status);*/
-/*                var reserveModel = new
+                var reserveModel = new
                 {
                     organizationId = "df80b1df-07ee-42eb-b271-bea261bc2707",
                     terminalGroupId = "e7fea5ed-e9ca-1c85-0163-ca1dfb1100c3",
@@ -269,7 +272,7 @@ public class BookingController : Controller
                     comment = paymentDb.Client.Message,
                     durationInMinutes = 120,
                     shouldRemind = false,
-                    tableIds = paymentDb.TableIds,
+                    tableIds = paymentDb.Tables,
                     estimatedStartTime = paymentDb.EstimatedStartTime,
                     transportToFrontTimeout = 0,
                     guests = new
@@ -285,29 +288,27 @@ public class BookingController : Controller
             {
                 client.CancelPayment(payment.Id);
             }
-        }
+        }*/
     }
 
     [Route("/api/v1/reserves/Iiko")]
     [HttpPost]
     public async Task ReservesIiko([FromBody] dynamic data)
     {
-        _logger.Log(LogLevel.Information, "==========Body===========" + (object)data.ToString());
-        dynamic body = JsonConvert.DeserializeObject<dynamic>(data.ToString());
-        _logger.Log(LogLevel.Information, "==========Body2===========" + (object)body.ToString());
+        /*var body = JsonConvert.DeserializeObject<dynamic>(data.ToString());
         bool isDeleted = body[0].eventInfo.isDeleted;
-        ReservesEntity? reserveDb = await _reservesService.GetById(Guid.Parse(body[0].eventInfo.id.ToString()));
+        ReserveEntity? reserveDb = await _reservesService.GetById(Guid.Parse(body[0].eventInfo.id.ToString()));
 
         if (!isDeleted)
         {
             if (reserveDb == null)
             {
-                var newReserve = new ReservesEntity()
+                var newReserve = new ReserveEntity()
                 {
                     Id = Guid.Parse(body[0].eventInfo.id.ToString()),
                     Status = body[0].eventInfo.creationStatus,
                     PaymentId = null,
-                    TableIds = ((JArray)body[0].eventInfo.reserve.tableIds).Select(v => v.ToString()).ToList(),
+                    /*Tables = ((JArray)body[0].eventInfo.reserve.tableIds).Select(v => v.ToString()).ToList(),#1#
                     EstimatedStartTime = DateTime.Parse(body[0].eventInfo.reserve.estimatedStartTime.ToString()),
                     DurationInMinutes = int.Parse(body[0].eventInfo.reserve.durationInMinutes.ToString()),
                     GuestsCount = body[0].eventInfo.reserve.guestsCount,
@@ -320,27 +321,28 @@ public class BookingController : Controller
                 reserveDb.Id = Guid.Parse(body[0].eventInfo.id.ToString());
                 reserveDb.Status = body[0].eventInfo.creationStatus;
                 reserveDb.PaymentId = null;
-                reserveDb.TableIds = ((JArray)body[0].eventInfo.reserve.tableIds).Select(v => v.ToString()).ToList();
+                /*reserveDb.Tables = ((JArray)body[0].eventInfo.reserve.tableIds).Select(v => v.ToString()).ToList();#1#
                 reserveDb.EstimatedStartTime = DateTime.Parse(body[0].eventInfo.reserve.estimatedStartTime.ToString());
                 reserveDb.DurationInMinutes = int.Parse(body[0].eventInfo.reserve.durationInMinutes.ToString());
                 reserveDb.GuestsCount = body[0].eventInfo.reserve.guestsCount;
                 reserveDb.CreatorDate = DateTime.Parse(body[0].eventTime.ToString());
                 await _reservesService.Edit(reserveDb);
-            }    
+            }
         }
         else
         {
             if (reserveDb != null)
             {
-                var tables = _tablesService.GetByIds(reserveDb.TableIds);
+                var tables = _tablesService.GetByIds(reserveDb.Tables.Select(a=>a.Id.ToString()).ToList());
                 foreach (var table in tables)
                 {
                     table.IsReserve = false;
-                    table.Reserve = null;
+                    table.Reserves = null;
                     await _tablesService.Edit(table);
                 }
+
                 await _reservesService.Delete(reserveDb);
             }
-        }
+        }*/
     }
-}*/
+}

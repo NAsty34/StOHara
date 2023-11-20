@@ -1,5 +1,4 @@
 using System.Net;
-using Logic.Exceptions;
 using MaxOHara.Dto;
 
 namespace MaxOHara.Middleware;

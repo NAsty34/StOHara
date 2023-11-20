@@ -1,4 +1,3 @@
-using Data.Model;
 using Data.Model.Entities;
 using Data.Model.Lending;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +17,15 @@ public class MaxOHaraContext:DbContext
         {
             a.Property(d => d.RoleEntity).HasConversion(new EnumToStringConverter<RoleEntity>());
         });
+        
+        modelBuilder.Entity<ReserveEntity>(a =>
+        {
+            a.HasMany(e => e.Tables)
+                .WithMany(e => e.Reserves);
+        });
+        
         base.OnModelCreating(modelBuilder);
+        
     }
     
     public DbSet<UserEntity> Users { get; set; } = null!;
@@ -29,8 +36,9 @@ public class MaxOHaraContext:DbContext
     public DbSet<BannerLendingEntity> BannerLending { get; set; }
     public DbSet<SliderLendingEntity> SliderLending { get; set; }
     public DbSet<AtmosphereLendingEntity> AtmosphereLending { get; set; }
-    /*public DbSet<ClientEnity> Client { get; set; }
-    public DbSet<TablesEntity> Tables { get; set; }
-    public DbSet<ReservesEntity> Reserves { get; set; }
-    public DbSet<FeatureEntity> Feature { get; set; }*/
+    public DbSet<ClientEnity> Clients { get; set; }
+    public DbSet<TableEntity> Tables { get; set; }
+    public DbSet<ReserveEntity> Reserves { get; set; }
+    public DbSet<FeatureEntity> Feature { get; set; }
+    
 }

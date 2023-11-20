@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Data.Repository.Interface;
 using Logic.Exceptions;
 using Logic.Service.Interface;
@@ -23,7 +24,7 @@ public class UserController:Controller
     
     [Route("/api/v1/users/me")]
     [HttpGet]
-    public async Task<ResponseDto<UserDto>> GetUser()
+    public ResponseDto<UserDto> GetUser()
     {
         var user = _userServer.GetById(_scope.Userid);
         return new ResponseDto<UserDto>(new UserDto(user));
@@ -38,7 +39,7 @@ public class UserController:Controller
         return new ResponseDto<PageModel<UserDto>>(pageUser);
     }
     
-    [Authorize (Roles = nameof(RoleEntity.Admin))]
+    [Authorize (Roles = nameof(RoleEntity.Администратор))]
     [Route("/api/v1/user")]
     [HttpPost]
     public async Task<ResponseDto<UserDto>> CreateUser([FromBody] CreateUserDto userDto)
@@ -60,7 +61,7 @@ public class UserController:Controller
         return new(new UserDto(newUser));
     }
     
-    [Authorize (Roles = nameof(RoleEntity.Admin))]
+    [Authorize (Roles = nameof(RoleEntity.Администратор))]
     [Route("/api/v1/user/{userId}")]
     [HttpPut]
     public async Task<ResponseDto<UserDto>> EditUser([FromBody]UserDto userEditDto, Guid userId)
@@ -80,7 +81,7 @@ public class UserController:Controller
         return new(new UserDto(fromDb));
     }
     
-    [Authorize (Roles = nameof(RoleEntity.Admin))]
+    [Authorize (Roles = nameof(RoleEntity.Администратор))]
     [Route("/api/v1/user/{userId}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteUser(Guid userId)

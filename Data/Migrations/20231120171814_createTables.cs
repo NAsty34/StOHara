@@ -7,10 +7,20 @@ namespace Data.Migrations
     /// <inheritdoc />
     public partial class createTables : Migration
     {
-        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         { 
-            
+            migrationBuilder.InsertData(
+                table: "Feature",
+                columns: new[]
+                {
+                   "Id", "IsCheck"
+                },
+                values: new object[]
+                {
+                   Guid.NewGuid(), false
+                }
+            );
+
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[]

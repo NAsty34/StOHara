@@ -1,5 +1,5 @@
 
-namespace Data.Model;
+namespace Data.Model.Entities;
 
 public class GalleryEntity:BaseEntity
 {

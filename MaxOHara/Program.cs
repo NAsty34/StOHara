@@ -8,7 +8,6 @@ using Logic.Service.Interface;
 using MaxOHara;
 using MaxOHara.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
@@ -18,7 +17,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
 builder.Services.AddControllers();
 
-/*builder.Services.AddQuartz(q =>
+builder.Services.AddQuartz(q =>
 {
     q.UseMicrosoftDependencyInjectionJobFactory();
     var jobKey = new JobKey("MaxOHara");
@@ -26,7 +25,7 @@ builder.Services.AddControllers();
     q.AddTrigger(opts => opts
         .ForJob(jobKey)
         .WithSimpleSchedule(x => x
-            .WithInterval(TimeSpan.FromSeconds(1200)) //10minutes
+            .WithInterval(TimeSpan.FromSeconds(100)) //10minutes
             .RepeatForever())
     );
     jobKey = new JobKey("MaxOHara2");
@@ -43,14 +42,14 @@ builder.Services.AddControllers();
             .RepeatForever())
     );
 });
-builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);*/
+builder.Services.AddQuartzHostedService(q => q.WaitForJobsToComplete = true);
 
 var appConfig = builder.Configuration;
 builder.Services.Configure<JwtTokenOptions>(builder.Configuration.GetSection(JwtTokenOptions.JwtToken));
 builder.Services.Configure<FilesOptions>(builder.Configuration.GetSection(FilesOptions.Files));
-//builder.Services.Configure<BookingOptions>(builder.Configuration.GetSection(BookingOptions.Booking));
-//builder.Services.Configure<ForIIKO>(builder.Configuration.GetSection(ForIIKO.DataShopForIiko));
-//builder.Services.Configure<AdminForEmail>(builder.Configuration.GetSection(AdminForEmail.Admin));
+builder.Services.Configure<BookingOptions>(builder.Configuration.GetSection(BookingOptions.Booking));
+builder.Services.Configure<ForIIKO>(builder.Configuration.GetSection(ForIIKO.DataShopForIiko));
+builder.Services.Configure<AdminForEmail>(builder.Configuration.GetSection(AdminForEmail.Admin));
 
 
 builder.Services.AddDbContext<DbContext, MaxOHaraContext>(option =>
@@ -61,7 +60,7 @@ builder.Services.AddDbContext<DbContext, MaxOHaraContext>(option =>
 });
 
 builder.Services.AddScoped<IScopeInfo, ScopeInfo>();
-//builder.Services.AddScoped<IFeatureRepository, FeatureRepository>();
+builder.Services.AddScoped<IFeatureRepository, FeatureRepository>();
 builder.Services.AddScoped(typeof(IBaseRepository<>), typeof(BaseRepository<>));
 builder.Services.AddScoped(typeof(ILendingRepository<>), typeof(LendingRepository<>));
 builder.Services.AddScoped<IBannerLendingRepository, BannerLendingRepository>();
@@ -72,11 +71,10 @@ builder.Services.AddScoped<ISliderLendingRepository, SliderLendingRepository>();
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IMenuRepository, MenuRepository>();
 builder.Services.AddTransient<IFilesRepository, FilesRepository>();
-builder.Services.AddTransient<INewsRepository, NewsRepository>();
 builder.Services.AddTransient<IGalleryRepository, GalleryRepository>();
-//builder.Services.AddTransient<IClientRepository, ClientRepository>();
-//builder.Services.AddTransient<ITablesRepository, TablesRepository>();
-//builder.Services.AddTransient<IReservesRepository, ReservesRepository>();
+builder.Services.AddTransient<IClientRepository, ClientRepository>();
+builder.Services.AddTransient<ITablesRepository, TablesRepository>();
+builder.Services.AddTransient<IReservesRepository, ReservesRepository>();
 
 builder.Services.AddScoped(typeof(IBaseService<>), typeof(BaseService<>));
 builder.Services.AddScoped(typeof(ILendingService<>), typeof(LendingService<>));
@@ -87,16 +85,16 @@ builder.Services.AddScoped<AtmosphereLendingService>();
 builder.Services.AddTransient<IAuthService, AuthService>();
 builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddTransient<UserService>();
-builder.Services.AddTransient<INewsService, NewsService>();
 builder.Services.AddTransient<IGalleryService, GalleryService>();
 builder.Services.AddTransient<IMenuService, MenuService>();
 builder.Services.AddTransient<IFilesService, FilesService>();
 builder.Services.AddTransient<ISliderService, SliderLendingService>();
-//builder.Services.AddTransient<IClientService, ClientService>();
-//builder.Services.AddTransient<ITablesService, TablesService>();
-//builder.Services.AddTransient<IIikoService, IikoService>();
-//builder.Services.AddTransient<IReservesService, ReservesService>();
-//builder.Services.AddTransient<ISendEmailService, SendEmailService>();
+builder.Services.AddTransient<IClientService, ClientService>();
+builder.Services.AddTransient<ITablesService, TablesService>();
+builder.Services.AddTransient<IIikoService, IikoService>();
+builder.Services.AddTransient<IReservesService, ReservesService>();
+builder.Services.AddTransient<ISendEmailService, SendEmailService>();
+builder.Services.AddTransient<IFeatureService, FeatureService>();
 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -131,7 +129,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<AuthMiddleware>();
 app.UseMiddleware<ErrorHandlingMiddleware>();
-//app.UseMiddleware<CheckBookingMiddleware>();
+app.UseMiddleware<CheckBookingMiddleware>();
 
 Directory.CreateDirectory("StaticFiles");
 app.UseStaticFiles(new StaticFileOptions

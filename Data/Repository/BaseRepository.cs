@@ -7,7 +7,7 @@ namespace Data.Repository;
 public class BaseRepository<T>: IBaseRepository<T> where T : BaseEntity
 {
     protected readonly MaxOHaraContext Context;
-    protected readonly DbSet<T?> DbSet;
+    protected readonly DbSet<T> DbSet;
     private readonly IScopeInfo _scope;
 
     public BaseRepository(MaxOHaraContext context, IScopeInfo scope)
@@ -20,12 +20,12 @@ public class BaseRepository<T>: IBaseRepository<T> where T : BaseEntity
 
     public T GetById(Guid id)
     {
-        return DbSet.FirstOrDefault(a => a.Id == id);
+        return DbSet.First(a => a.Id == id);
     }
 
-    public IEnumerable<T?> GetByIds(IEnumerable<Guid> ids)
+    public async Task<List<T>> GetByIds(IEnumerable<Guid> ids)
     {
-        return DbSet.Where(a => ids.Contains(a.Id)).ToList();
+        return await DbSet.Where(a => ids.Contains(a.Id)).ToListAsync();
     }
 
     public virtual async Task<PageModel<T>> GetPage(int? page, int? size)
@@ -47,7 +47,7 @@ public class BaseRepository<T>: IBaseRepository<T> where T : BaseEntity
         await Context.SaveChangesAsync();
     }
 
-    public async Task Edit(IEnumerable<T> t)
+    public async Task Edit(List<T> t)
     {
         foreach (var baseEntity in t)
         {
@@ -62,9 +62,9 @@ public class BaseRepository<T>: IBaseRepository<T> where T : BaseEntity
         DbSet.Remove(entity);
         await Context.SaveChangesAsync();
     }
-    public async Task Delete(IEnumerable<Guid> ids)
+    public async Task Delete(List<Guid> ids)
     {
-        var listEntity = GetByIds(ids);
+        var listEntity = await GetByIds(ids);
         DbSet.RemoveRange(listEntity);
         await Context.SaveChangesAsync();
     }

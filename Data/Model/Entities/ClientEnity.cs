@@ -1,6 +1,4 @@
 
-using System.ComponentModel;
-
 namespace Data.Model.Entities;
 
 public class ClientEnity

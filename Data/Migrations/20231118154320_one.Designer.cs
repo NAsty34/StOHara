@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Data.Migrations
 {
     [DbContext(typeof(MaxOHaraContext))]
-    [Migration("20230926195403_one")]
+    [Migration("20231118154320_one")]
     partial class one
     {
         /// <inheritdoc />
@@ -27,6 +27,91 @@ namespace Data.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Data.Model.Entities.ClientEnity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Patronymic")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Phone")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Surname")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clients");
+                });
+
+            modelBuilder.Entity("Data.Model.Entities.FeatureEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsCheck")
+                        .HasColumnType("boolean");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Feature");
+                });
+
+            modelBuilder.Entity("Data.Model.Entities.ReserveEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("ClientId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTime>("CreatorDate")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("DurationInMinutes")
+                        .HasColumnType("integer");
+
+                    b.Property<DateTime>("EstimatedStartTime")
+                        .HasColumnType("timestamp without time zone");
+
+                    b.Property<int>("GuestsCount")
+                        .HasColumnType("integer");
+
+                    b.Property<Guid?>("PaymentId")
+                        .HasColumnType("uuid");
+
+                    b.Property<decimal?>("Price")
+                        .HasColumnType("numeric");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.ToTable("Reserves");
+                });
 
             modelBuilder.Entity("Data.Model.FileEntity", b =>
                 {
@@ -179,6 +264,30 @@ namespace Data.Migrations
                     b.ToTable("Menu");
                 });
 
+            modelBuilder.Entity("Data.Model.TableEntity", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Hall")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<bool>("IsReserve")
+                        .HasColumnType("boolean");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tables");
+                });
+
             modelBuilder.Entity("Data.Model.UserEntity", b =>
                 {
                     b.Property<Guid>("Id")
@@ -229,6 +338,45 @@ namespace Data.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("ReserveEntityTableEntity", b =>
+                {
+                    b.Property<Guid>("ReservesId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("TablesId")
+                        .HasColumnType("uuid");
+
+                    b.HasKey("ReservesId", "TablesId");
+
+                    b.HasIndex("TablesId");
+
+                    b.ToTable("ReserveEntityTableEntity");
+                });
+
+            modelBuilder.Entity("Data.Model.Entities.ReserveEntity", b =>
+                {
+                    b.HasOne("Data.Model.Entities.ClientEnity", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId");
+
+                    b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("ReserveEntityTableEntity", b =>
+                {
+                    b.HasOne("Data.Model.Entities.ReserveEntity", null)
+                        .WithMany()
+                        .HasForeignKey("ReservesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Data.Model.TableEntity", null)
+                        .WithMany()
+                        .HasForeignKey("TablesId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

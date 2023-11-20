@@ -1,9 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
-using Data.Model;
 using Data.Repository.Interface;
 using Logic.Exceptions;
 using Logic.Service.Interface;
-using Microsoft.Extensions.Logging;
 
 namespace Logic.Service;
 

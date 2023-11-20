@@ -1,6 +1,4 @@
 
-using System.ComponentModel;
-
 namespace Data.Model.Lending;
 
 public class BaseLending

@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Logic.Service.Interface;
 using MaxOHara.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -33,7 +34,7 @@ public class GalleryController : Controller
         return new(pageGallery);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/gallery")]
     [HttpPost]
     public async Task<ResponseDto<IEnumerable<GalleryDto>>> CreateGallery([FromForm] IEnumerable<IFormFile> file)
@@ -59,7 +60,7 @@ public class GalleryController : Controller
         return new(galleryDto);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/gallery/{galleryId}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteGallery(Guid galleryId)

@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Logic.Service.Interface;
 using MaxOHara.Dto;
 using Microsoft.AspNetCore.Authorization;
@@ -49,7 +50,7 @@ public class MenuController : Controller
         return new(pageMenu);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/menu/upload/{typeMenu}")]
     [HttpPost]
     public async Task<ResponseDto<IEnumerable<MenuDto>>> CreateMenu([FromForm] IEnumerable<IFormFile> file, string typeMenu)
@@ -57,26 +58,20 @@ public class MenuController : Controller
         var menuEntities = new List<MenuEntity>();
         var maxPos = _menuService.GetMaxPosition();
         var newFile = await _filesService.AddFiles(file);
-        if (typeMenu == "lunch")
+        menuEntities = typeMenu switch
         {
-            menuEntities = newFile.Select(a => new MenuEntity()
-            {
-                Id = Guid.NewGuid(),
-                Position = maxPos++,
-                IdFile = a.Id,
-                BusinessLunches = true
-            }).ToList();
-        }
-        if (typeMenu == "main")
-        {
-            menuEntities = newFile.Select(a => new MenuEntity()
-            {
-                Id = Guid.NewGuid(),
-                Position = maxPos++,
-                IdFile = a.Id,
-                BusinessLunches = false
-            }).ToList();
-        }
+            "lunch" => newFile.Select(a => new MenuEntity()
+                {
+                    Id = Guid.NewGuid(), Position = maxPos++, IdFile = a.Id, BusinessLunches = true
+                })
+                .ToList(),
+            "main" => newFile.Select(a => new MenuEntity()
+                {
+                    Id = Guid.NewGuid(), Position = maxPos++, IdFile = a.Id, BusinessLunches = false
+                })
+                .ToList(),
+            _ => menuEntities
+        };
 
         await _menuService.Create(menuEntities);
         
@@ -89,17 +84,17 @@ public class MenuController : Controller
     }
     
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/menu")]
     [HttpPut]
     public async Task<ResponseDto<PageModel<MenuDto>>> EditPositionMenu([FromBody] List<EditPositionMenu> positionMenu,
         int? page, int? size)
     {
         var dictionary = positionMenu.ToDictionary(a => a.Id, a => a.Position);
-        var listMenu = _menuService.GetByIds(dictionary.Keys);
+        var listMenu = await _menuService.GetByIds(dictionary.Keys);
         foreach (var menu in listMenu)
         {
-            menu.Position = dictionary[menu.Id];
+            if (menu != null) menu.Position = dictionary[menu.Id];
         }
 
         await _menuService.Edit(listMenu);
@@ -114,7 +109,7 @@ public class MenuController : Controller
         return new(pageMenu);
     }
 
-    [Authorize(Roles = nameof(RoleEntity.Admin) + "," + nameof(RoleEntity.Сотрудник))]
+    [Authorize(Roles = nameof(RoleEntity.Администратор) + "," + nameof(RoleEntity.Сотрудник))]
     [Route("/api/v1/menu/{menuId}")]
     [HttpDelete]
     public async Task<IActionResult> DeleteMenu(Guid menuId)

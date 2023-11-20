@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Data.Model;
+using Data.Model.Entities;
 using Data.Repository.Interface;
 using Logic.Service.Interface;
 using Microsoft.AspNetCore.Authorization;
@@ -24,7 +25,7 @@ public class AuthMiddleware
             scope.Userid = Guid.Parse(context.User.Claims.First(a => a.Type == ClaimTypes.Actor).Value);
             
             var user = userServer.GetById(scope.Userid);
-            scope.Role = user.RoleEntity;
+            if (user != null) scope.Role = user.RoleEntity;
         }
 
         await _next(context);

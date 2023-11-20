@@ -1,4 +1,3 @@
-using System.ComponentModel;
 
 namespace Data.Model.Lending;
 

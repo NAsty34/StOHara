@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using Data.Model;
+using Data.Model.Entities;
 
 namespace MaxOHara.Dto;
 

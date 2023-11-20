@@ -1,4 +1,4 @@
-/*using Data.Repository.Interface;
+using Data.Repository.Interface;
 using MaxOHara.Dto;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,7 +27,7 @@ public class FeatureController:Controller
             _ => check.IsCheck
         };
 
-        await _featureRepository.Edit(check);
+        await _featureRepository.Edit(check.IsCheck);
     }
     
     [Route("/api/v1/check")]
@@ -37,4 +37,4 @@ public class FeatureController:Controller
         var check = _featureRepository.GetBool();
         return new ResponseDto<string>(check.IsCheck.ToString());
     }
-}*/
+}

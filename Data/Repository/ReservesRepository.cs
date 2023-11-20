@@ -1,43 +1,56 @@
 using Data.Model.Entities;
 using Data.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Data.Repository;
 
-public class ReservesRepository:IReservesRepository
+public class ReservesRepository : IReservesRepository
 {
     protected readonly MaxOHaraContext Context;
-    protected readonly DbSet<ReservesEntity> DbSet;
-    private ILogger<ReservesEntity> _logger;
+    protected readonly DbSet<ReserveEntity> DbSet;
 
-    public ReservesRepository(MaxOHaraContext context, ILogger<ReservesEntity> logger)
+    public ReservesRepository(MaxOHaraContext context)
     {
         Context = context;
-        _logger = logger;
-        DbSet = DbSet = Context.Set<ReservesEntity>();;
+        DbSet = DbSet = Context.Set<ReserveEntity>();
     }
-    
-    public async Task<ReservesEntity?> GetById(Guid id)
-    {
-        return DbSet.FirstOrDefault(a => a.Id == id);
-    }
-    
-    public List<ReservesEntity> GetAllReserves()
+
+    public List<ReserveEntity> GetAllReserve()
     {
         return DbSet.Where(a => true).ToList();
     }
-    
-    public async Task Create(List<ReservesEntity> t)
+    public async Task<ReserveEntity?> GetById(Guid id)
     {
-        foreach (var oneReserv in t)
+        return await DbSet.FirstOrDefaultAsync(a => a.Id == id);
+    }
+    
+    public async Task<List<ReserveEntity>> GetByIds(List<Guid> ids)
+    {
+        return await DbSet.Where(a => ids.Equals(a.Id)).ToListAsync();
+    }
+    
+    public async Task<bool> CheckHashReservationBetweenTime(DateTime startTime, DateTime endTime, List<string> tablesId)
+    {
+        var ids = tablesId.Select(Guid.Parse);
+
+        var result = await DbSet.FirstOrDefaultAsync(entity => entity.Tables.Any(t => ids.Contains(t.Id)) &&
+                                                               ((entity.EstimatedStartTime >= startTime && entity.EstimatedStartTime <= endTime) || 
+                                                                (entity.EstimatedStartTime.AddMinutes(entity.DurationInMinutes) >= startTime && entity.EstimatedStartTime.AddMinutes(entity.DurationInMinutes) <= endTime)));
+        return result != null;
+    }
+
+    public async Task Create(List<ReserveEntity> t)
+    {
+        foreach (var oneReserve in t)
         {
-            oneReserv.CreatorDate = DateTime.Now;
+            oneReserve.CreatorDate = DateTime.Now;
         }
+
         await DbSet.AddRangeAsync(t);
         await Context.SaveChangesAsync();
     }
-    public async Task Create(ReservesEntity t)
+
+    public async Task Create(ReserveEntity t)
     {
         t.CreatorDate = DateTime.Now;
         await DbSet.AddAsync(t);
@@ -50,36 +63,43 @@ public class ReservesRepository:IReservesRepository
         DbSet.RemoveRange(range);
         await Context.SaveChangesAsync();
     }
-    public IEnumerable<ReservesEntity> GetByInterval(DateTime interval)
+
+    public IEnumerable<ReserveEntity> GetByInterval(DateTime interval)
     {
-        _logger.Log(LogLevel.Information, "========Interval=======" + interval);
+        /*_logger.Log(LogLevel.Information, "========Interval=======" + interval);*/
         return DbSet.Where(a => a.CreatorDate <= interval && a.Status == StatusEntity.Progress);
     }
-    public async Task<ReservesEntity> GetByPaymentId(Guid paymentId, Dictionary<string, string> id)
+
+    public async Task<ReserveEntity> GetByPaymentId(Guid paymentId, Dictionary<string, string> id)
     {
-       return await DbSet.FirstAsync(a => a.PaymentId == paymentId && a.Id == new Guid(id.Values.First()));
+        return await DbSet.FirstAsync(a => a.PaymentId == paymentId && a.Id == new Guid(id.Values.First()));
     }
-    public async Task<ReservesEntity?> GetByPaymentId(Guid paymentId)
+
+    public async Task<ReserveEntity?> GetByPaymentId(Guid paymentId)
     {
-        return await DbSet.FirstOrDefaultAsync(a => a.PaymentId == paymentId );
+        return await DbSet.FirstOrDefaultAsync(a => a.PaymentId == paymentId);
     }
-    public void Delete(List<ReservesEntity> t)
+
+    public void Delete(List<ReserveEntity> t)
     {
         DbSet.RemoveRange(t);
         Context.SaveChanges();
     }
-    public async Task Delete(ReservesEntity t)
+
+    public async Task Delete(ReserveEntity t)
     {
         DbSet.Remove(t);
         await Context.SaveChangesAsync();
     }
-    public async Task Delete(Guid reservId)
+
+    public async Task Delete(Guid reserveId)
     {
-        var reserv = DbSet.First(a => a.Id == reservId);
-        DbSet.Remove(reserv);
+        var reserve = DbSet.First(a => a.Id == reserveId);
+        DbSet.Remove(reserve);
         await Context.SaveChangesAsync();
     }
-    public async Task Edit(ReservesEntity t)
+
+    public async Task Edit(ReserveEntity t)
     {
         Context.Entry(t).State = EntityState.Modified;
         await Context.SaveChangesAsync();

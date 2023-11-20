@@ -1,4 +1,5 @@
 using Data.Model;
+using Data.Model.Entities;
 using Data.Repository.Interface;
 using Logic.Service.Interface;
 

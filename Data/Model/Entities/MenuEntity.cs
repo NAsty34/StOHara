@@ -1,6 +1,6 @@
 using System.ComponentModel;
 
-namespace Data.Model;
+namespace Data.Model.Entities;
 
 public class MenuEntity:BaseEntity
 {

@@ -8,5 +8,4 @@ public class BookingOptions
     public string ReturnUrlForPayment { get; set; }
     public string ReturnUrl { get; set; }
     public string Currency { get; set; }
-    public TimeOnly Duration { get; set; }
 }

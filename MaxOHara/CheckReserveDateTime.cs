@@ -1,4 +1,4 @@
-/*using Logic.Service.Interface;
+using Logic.Service.Interface;
 using Quartz;
 
 namespace MaxOHara;
@@ -19,15 +19,16 @@ public class CheckReserveDateTime : IJob
         var reservesToday = _reservesService.GetAllReserve();
         foreach (var reserve in reservesToday.Where(reserve => reserve.EstimatedStartTime.AddMinutes(reserve.DurationInMinutes) < DateTime.Today))
         {
-            var tables = _tablesService.GetByIds(reserve.TableIds);
+            var tables = _tablesService.GetByIds(reserve.Tables.Select(a=>a.Id.ToString()).ToList());
             foreach (var table in tables)
             {
                 table.IsReserve = false;
-                table.Reserve = null;
+                table.Reserves = null;
                 _tablesService.Edit(table);
             }
             _reservesService.Delete(reserve);
         }
+
         return Task.CompletedTask;
     }
-}*/
+}

@@ -26,16 +26,18 @@ public class SendEmailService : ISendEmailService
         _options = options.Value;
     }
 
-    public Task Send(string email, ReservesEntity reserve)
+    public Task Send(string email, ReserveEntity reserve)
     {
-        var tables = _tablesRepository.GetByIds(reserve.TableIds);
         var emailMessage = new MimeMessage();
+        var tableHallAndNumberList = reserve.Tables.Select(table => $"{table.Hall}" + " " + $"{table.Number}"+" ").ToList();
+        var tableHallAndNumber = string.Join(string.Empty, tableHallAndNumberList.ToArray());
         emailMessage.From.Add(new MailboxAddress(_options.NameSender, _options.AdminEmail));
         emailMessage.To.Add(new MailboxAddress("", email));
         emailMessage.Subject = "Данные о резерве в пабе St.O'Hara";
 
-        var bodyBuilder = new BodyBuilder();
-        bodyBuilder.HtmlBody = @$"<!DOCTYPE html>
+        var bodyBuilder = new BodyBuilder
+        {
+	        HtmlBody = @$"<!DOCTYPE html>
 <html style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;"">
 <head>
 	<meta charset=""utf-8"">
@@ -124,7 +126,7 @@ public class SendEmailService : ISendEmailService
 																	<span style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;"">Стол:</span>
 																</td>
 																<td align=""right"" style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;"">
-																	<span style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;""> {tables.Select(a=>a.Hall).First()} {tables.Select(a=>a.Number).First()}</span>
+																	<span style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;""> {tableHallAndNumber}</span>
 																</td>
 															</tr>
 															<tr style=""margin: 0; padding: 0; color: #eee; font-family: 'San\0000a0Francisco', Segoe, Roboto,Arial,Helvetica, sans-serif;"">
@@ -254,7 +256,8 @@ public class SendEmailService : ISendEmailService
 		</tbody>
 	</table>
 </body>
-</html>";
+</html>"
+        };
         emailMessage.Body = bodyBuilder.ToMessageBody();
 
         var client = new SmtpClient();

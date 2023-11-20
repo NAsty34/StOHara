@@ -19,9 +19,11 @@ public class FeatureRepository:IFeatureRepository
     {
         return DbSet.First(a=>true);
     }
-    public async Task Edit(FeatureEntity t)
+    public async Task Edit(bool check)
     {
-        Context.Entry(t).State = EntityState.Modified;
+        var fe = DbSet.First();
+        fe.IsCheck = check;
+        Context.Entry(fe).State = EntityState.Modified;
         await Context.SaveChangesAsync();
     }
 }

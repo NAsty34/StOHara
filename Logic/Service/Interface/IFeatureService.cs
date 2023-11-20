@@ -1,8 +1,8 @@
 using Data.Model.Entities;
 
-namespace Data.Repository.Interface;
+namespace Logic.Service.Interface;
 
-public interface IFeatureRepository
+public interface IFeatureService
 {
     public FeatureEntity GetBool();
     public Task Edit(bool check);

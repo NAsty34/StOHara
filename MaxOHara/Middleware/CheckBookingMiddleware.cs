@@ -1,7 +1,4 @@
-/*using System.Net;
-using Data.Model.Entities;
 using Data.Repository.Interface;
-using Microsoft.AspNetCore.Authorization;
 
 namespace MaxOHara.Middleware;
 
@@ -16,7 +13,7 @@ public class CheckBookingMiddleware
     public async Task Invoke(HttpContext context, IFeatureRepository featureRepository)
     {
         var pathValue = context.Request.Path.Value;
-        if (pathValue.Contains("booking"))
+        if (pathValue != null && pathValue.Contains("booking"))
         {
             if (featureRepository.GetBool().IsCheck)
             {
@@ -26,4 +23,4 @@ public class CheckBookingMiddleware
         }
         await _next(context);
     }
-}*/
+}

@@ -26,7 +26,7 @@ public class LendingRepository<T>:ILendingRepository<T> where T : BaseLending
 
     public async Task<EditLendingEntity> GetPage()
     {
-        var banner = await Context.BannerLending.FirstOrDefaultAsync();
+        var banner = await Context.BannerLending.FirstAsync();
         var about = await Context.AboutLending.OrderBy(a=>a.Id).ToListAsync();
         var atmosphere = await Context.AtmosphereLending.OrderBy(a=>a.Id).ToListAsync();
         var edit = new EditLendingEntity()

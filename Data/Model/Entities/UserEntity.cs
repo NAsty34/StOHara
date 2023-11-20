@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Data.Model;
+namespace Data.Model.Entities;
 
 public class UserEntity:BaseEntity
 {
@@ -16,7 +16,8 @@ public class UserEntity:BaseEntity
     public string? Email { get; set; }
     [Required(ErrorMessage = "Укажите номер телефона")]
     [Phone]
-    public string Phone { get; set; }
+    public string Phone { get; set; } = null!;
+
     [Required(ErrorMessage = "Укажите роль")]
     public RoleEntity RoleEntity { get; set; }
     [Required(ErrorMessage = "Укажите пароль")]

@@ -1,10 +1,7 @@
 using Data.Model;
 using Data.Model.Entities;
-using Data.Model.Options;
 using Data.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 namespace Data.Repository;
 
