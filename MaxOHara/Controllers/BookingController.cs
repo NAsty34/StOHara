@@ -79,7 +79,7 @@ public class BookingController : Controller
     public async Task<ResponseDto<string>> CreateReserve([FromBody] CreateReservesDto create)
     {
         var id = Guid.NewGuid();
-        var price = 0;
+        decimal price = (decimal) 0;
         var returnUrl = _bookingOptions.ReturnUrl;
         var clientsDb = await _clientService.GetByFio(create.Name, create.Surname, create.Patronymic);
         var client = new ClientEnity();
@@ -165,18 +165,18 @@ public class BookingController : Controller
             {
                 if (table.Number is 5 or 6 or 7)
                 {
-                    price += 10;
+                    price += 1;
                 }
                 else
                 {
-                    price += 10;
+                    price += 1;
                 }
             }
 
-            /*var payment = await _clientService.CreatePayment(price, id);
-            reserve.PaymentId = Guid.Parse(payment.Id);*/
+            var payment = await _clientService.CreatePayment(reserve, price, id);
+            reserve.PaymentId = Guid.Parse(payment.Id);
             await _reservesService.Edit(reserve);
-            /*returnUrl = payment.Confirmation.ConfirmationUrl;*/
+            returnUrl = payment.Confirmation.ConfirmationUrl;
         }
         else
         {
@@ -218,8 +218,6 @@ public class BookingController : Controller
         reserve.Price = price;
         await _reservesService.Edit(reserve);
 
-        await _sendEmailService.Send(create.Email, reserve);
-
         return new ResponseDto<string>(returnUrl);
     }
 
@@ -228,7 +226,7 @@ public class BookingController : Controller
     [HttpPost]
     public async Task Payment([FromBody] object body)
     {
-        /*var client = _clientService.CreateClient();
+        var client = _clientService.CreateClient();
         var message = Yandex.Checkout.V3.Client.ParseMessage(Request.Method, Request.ContentType, body.ToString());
         var payment = message.Object;
         if (message.Event == Event.PaymentWaitingForCapture)
@@ -243,13 +241,13 @@ public class BookingController : Controller
                 foreach (var table in tables)
                 {
                     table.IsReserve = true;
-                    /*table.Reserves = paymentDb;#1#
+                    /*table.Reserves.Add(paymentDb);*/
                     editListTable.Add(table);
                 }
 
                 await _tablesService.Edit(editListTable);
                 client.CapturePayment(payment.Id);
-                var reserveModel = new
+                /*var reserveModel = new
                 {
                     organizationId = "df80b1df-07ee-42eb-b271-bea261bc2707",
                     terminalGroupId = "e7fea5ed-e9ca-1c85-0163-ca1dfb1100c3",
@@ -270,7 +268,7 @@ public class BookingController : Controller
                     },
                     phone = paymentDb.Client.Phone,
                     comment = paymentDb.Client.Message,
-                    durationInMinutes = 120,
+                    durationInMinutes = paymentDb.DurationInMinutes,
                     shouldRemind = false,
                     tableIds = paymentDb.Tables,
                     estimatedStartTime = paymentDb.EstimatedStartTime,
@@ -282,13 +280,14 @@ public class BookingController : Controller
                 };
                 var bodyReserve = JsonConvert.SerializeObject(reserveModel);
                 await Client.PostAsJsonAsync("https://api-ru.iiko.services/api/1/reserve/create",
-                    bodyReserve);
+                    bodyReserve);*/
+                await _sendEmailService.Send(paymentDb.Client.Email, paymentDb);
             }
             else
             {
                 client.CancelPayment(payment.Id);
             }
-        }*/
+        }
     }
 
     [Route("/api/v1/reserves/Iiko")]

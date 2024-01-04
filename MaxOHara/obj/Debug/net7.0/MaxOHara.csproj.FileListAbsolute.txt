@@ -155,7 +155,6 @@ C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\MaxOHara.runti
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\MaxOHara.dll
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\MaxOHara.pdb
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\AutoMapper.dll
-C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\AutoMapper.Extensions.Microsoft.DependencyInjection.dll
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\BCrypt.Net-Next.dll
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\BouncyCastle.Cryptography.dll
 C:\Users\admin\Desktop\stohara\MaxOHara\MaxOHara\bin\Debug\net7.0\Castle.Core.dll

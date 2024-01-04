@@ -1,7 +1,6 @@
 using Data.Model.Entities;
 using Data.Repository.Interface;
 using Logic.Service.Interface;
-using Microsoft.Extensions.Logging;
 
 namespace Logic.Service;
 
@@ -30,7 +29,7 @@ public class ReservesService:IReservesService
         return t;
     }
 
-    public async Task<Boolean> CheckHashReservationBetweenTime(DateTime startTime, DateTime endTime, List<string> tablesId)
+    public async Task<bool> CheckHashReservationBetweenTime(DateTime startTime, DateTime endTime, List<string> tablesId)
     {
         return await _reservesRepository.CheckHashReservationBetweenTime(startTime, endTime, tablesId);
     }
@@ -39,9 +38,9 @@ public class ReservesService:IReservesService
     {
         await _reservesRepository.Delete();
     }
-    public async Task Delete(Guid reservId)
+    public async Task Delete(Guid reserveId)
     {
-        await _reservesRepository.Delete(reservId);
+        await _reservesRepository.Delete(reserveId);
     }
     public IEnumerable<ReserveEntity> GetBookingByInterval(DateTime interval)
     {
@@ -62,13 +61,13 @@ public class ReservesService:IReservesService
         await _reservesRepository.Edit(t);
         return t;
     }
-    public async Task Delete(ReserveEntity? bookingEnity)
+    public async Task Delete(ReserveEntity? bookingEntity)
     {
-        await _reservesRepository.Delete(bookingEnity);
+        await _reservesRepository.Delete(bookingEntity);
     }
-    public void Delete(List<ReserveEntity> bookingEnity)
+    public void Delete(List<ReserveEntity> bookingEntity)
     {
-        _reservesRepository.Delete(bookingEnity);
+        _reservesRepository.Delete(bookingEntity);
     }
     public async Task<ReserveEntity?> GetById(Guid id)
     {

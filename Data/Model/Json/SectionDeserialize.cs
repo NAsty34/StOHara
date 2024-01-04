@@ -23,5 +23,6 @@ public class SectionDeserialize
         public int seatingCapacity { get; set; }
         public object revision { get; set; }
         public bool isDeleted { get; set; }
+        public string posId { get; set; }
     }
 }

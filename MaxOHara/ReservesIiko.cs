@@ -18,7 +18,8 @@ public class ReservesIiko : IJob
     private readonly IClientService _clientService;
     private readonly ForIIKO _aiko;
 
-    public ReservesIiko(ITablesService tablesService, IIikoService aikoService, IReservesService reservesService, IClientService clientService, IOptions<ForIIKO> iiko)
+    public ReservesIiko(ITablesService tablesService, IIikoService aikoService, IReservesService reservesService,
+        IClientService clientService, IOptions<ForIIKO> iiko)
     {
         _tablesService = tablesService;
         _aikoService = aikoService;
@@ -29,36 +30,19 @@ public class ReservesIiko : IJob
 
     public async Task Execute(IJobExecutionContext context)
     {
-        /*_logger.Log(LogLevel.Information, "WORK");*/
         await _tablesService.Delete();
         await _reservesService.Delete();
         await _clientService.Delete();
 
-        var newTestTable = new TableEntity
-        {
-            Id = Guid.Parse("2ff897b2-0d60-4ec9-913c-f95bae9a41ec"),
-            Hall = "Зал",
-            Number = 1,
-            IsReserve = false,
-            IsDeleted = false,
-        };
-        await _tablesService.Create(newTestTable);
-        var newTestTable2 = new TableEntity
-        {
-            Id = Guid.Parse("dac8423f-47b7-4a41-84fc-63240f1c3b12"),
-            Hall = "Лаунж",
-            Number = 1,
-            IsReserve = false,
-            IsDeleted = false,
-        };
-        await _tablesService.Create(newTestTable2);
-        /*var token = await _aikoService.GetToken();
+        var token = await _aikoService.GetToken();
         Client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
 
         //create tables
         var modelForTables = new
         {
+            _aiko.restaurantSectionIds,
+            dateFrom = $"{DateTime.Now:yyyy-MM-dd} 00:00:00.123",
             terminalGroupIds = _aiko.terminalGroupId,
             returnSchema = false,
             revision = 0
@@ -69,13 +53,27 @@ public class ReservesIiko : IJob
                 requestTables);
         var tables = await responseTables.Content.ReadAsStringAsync();
         var tableAllModel = JsonConvert.DeserializeObject<SectionDeserialize>(tables);
-        var listTable = new List<TableEntity>();
-        var sectionTableHall = tableAllModel.RestaurantSections.Where(a => a.Name.Equals("Зал"));
-        var sectionTableLaung = tableAllModel.RestaurantSections.Where(a => a.Name.Equals("Лаунж"));
 
-        foreach (var tdb in sectionTableHall)
+        var sectionTableHall = tableAllModel.RestaurantSections.Where(a => a.Equals("Стол"));
+        var listTableLaunge = new List<TableEntity>();
+        var listTableHall = new List<TableEntity>();
+
+
+        foreach (var tdb in tableAllModel.RestaurantSections)
         {
-            listTable.AddRange(tdb.Tables.Select(newTable => new TableEntity()
+            listTableHall.AddRange(tdb.Tables.Where(a => a.name.Contains("Стол")).Select(newTable => new TableEntity()
+            {
+                Id = Guid.Parse(newTable.id),
+                Hall = newTable.name,
+                Number = newTable.number,
+                IsReserve = false,
+                IsDeleted = false
+            }));
+        }
+
+        foreach (var tdb in tableAllModel.RestaurantSections.Where(a => a.Name.Equals("Лаунж")))
+        {
+            listTableLaunge.AddRange(tdb.Tables.Select(newTable => new TableEntity()
             {
                 Id = Guid.Parse(newTable.id),
                 Hall = tdb.Name,
@@ -85,20 +83,8 @@ public class ReservesIiko : IJob
             }));
         }
 
-        foreach (var tdb in sectionTableLaung)
-        {
-            listTable.AddRange(tdb.Tables.Select(newTable => new TableEntity()
-            {
-                Id = Guid.Parse(newTable.id),
-                Hall = tdb.Name,
-                Number = newTable.number,
-                IsReserve = false,
-                IsDeleted = false,
-            }));
-        }
-
-        await _tablesService.Create(listTable);
-
+        await _tablesService.Create(listTableHall);
+        await _tablesService.Create(listTableLaunge);
 
         //create reserve
         var modelUpdateReserves = new
@@ -123,17 +109,18 @@ public class ReservesIiko : IJob
 
         var reserves = await responseReserve.Content.ReadAsStringAsync();
         var reserveModel = JsonConvert.DeserializeObject<ReservesDeserialize.Root>(reserves);
-        var newReserve = new ReserveEntity();
         if (reserveModel.reserves != null)
         {
-            foreach (var reserve in reserveModel.reserves)
+            var listReserve = new List<ReserveEntity>();
+            listReserve.AddRange(reserveModel.reserves.Select(reserf => new ReserveEntity()
             {
-                newReserve.Id = reserve.Id;
-                newReserve.DurationInMinutes = reserve.DurationInMinutes;
-                newReserve.EstimatedStartTime = reserve.EstimatedStartTime;
-                newReserve.GuestsCount = reserve.GuestsCount;
-                await _reservesService.Create(newReserve);
-            }
-        }*/
+                Id = reserf.Id,
+                DurationInMinutes = reserf.DurationInMinutes,
+                EstimatedStartTime = reserf.EstimatedStartTime,
+                GuestsCount = reserf.GuestsCount,
+                Tables = _tablesService.GetByIds(reserf.TableIds),
+            }));
+            await _reservesService.Create(listReserve);
+        }
     }
 }

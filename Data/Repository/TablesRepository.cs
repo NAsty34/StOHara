@@ -51,7 +51,6 @@ public class TablesRepository : ITablesRepository
         await DbSet.AddAsync(t);
         await Context.SaveChangesAsync();
     }
-
     public async Task Edit(List<TableEntity> t)
     {
         foreach (var baseEntity in t)

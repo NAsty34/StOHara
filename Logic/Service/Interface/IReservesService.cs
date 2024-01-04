@@ -10,9 +10,9 @@ public interface IReservesService
     public Task<ReserveEntity> Edit(ReserveEntity t);
     public Task<bool> CheckHashReservationBetweenTime(DateTime startTime, DateTime endTime, List<string> tablesId);
     public Task Delete();
-    public Task Delete(Guid reservId);
-    public Task Delete (ReserveEntity? bookingEnity);
-    public void Delete(List<ReserveEntity> bookingEnity);
+    public Task Delete(Guid reserveId);
+    public Task Delete (ReserveEntity? bookingEntity);
+    public void Delete(List<ReserveEntity> bookingEntity);
     public IEnumerable<ReserveEntity> GetBookingByInterval(DateTime interval);
     public Task<ReserveEntity> GetByPaymentId(Guid paymentId, Dictionary<string, string> id);
     public Task<ReserveEntity?> GetByPaymentId(string paymentId);

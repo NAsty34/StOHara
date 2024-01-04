@@ -13,7 +13,7 @@ public interface IClientService
     Task<ClientEnity> Create(ClientEnity t);
     public Task Delete();
     public Client CreateClient();
-    public Task<Payment?> CreatePayment(decimal value, Guid id);
+    public Task<Payment?> CreatePayment(ReserveEntity reserveEntity,decimal value, Guid id);
     public PaymentStatus GetStatusPayment(string id);
     public PaymentStatus MyStatusPayment();
 
